@@ -1,8 +1,8 @@
 {
-  "name": "pennywise",
-  "description": "Pennywise – Cross-platform application that allows you to open URLs in a floating window that always stays on top.",
-  "productName": "Pennywise",
-  "author": "Kamran Ahmed <kamranahmed.se@gmail.com>",
+  "name": "dgviewer",
+  "description": "DGViewer is a build of Pennywise – Cross-platform application that allows you to open URLs in a floating window that always stays on top.",
+  "productName": "DGViewer",
+  "author": "Dmitry Rodin <madiedinro@gmail.com>",
   "version": "0.6.3",
   "private": true,
   "main": "public/electron.js",
@@ -30,7 +30,8 @@
     "_build": "react-scripts build",
     "start": "concurrently \"yarn _react\" \"wait-on http://localhost:3000 && yarn _electron\" ",
     "build": "yarn _build && build --mac --win --linux --x64 --ia32 -p always",
-    "icons": "electron-icon-maker -i public/img/pennywise.png -o public",
+    "build-mac": "yarn _build && build --mac --x64 -p always",
+    "icons": "electron-icon-maker -i public/img/DGViewer.png -o public",
     "test": "mocha"
   },
   "eslintConfig": {
@@ -44,19 +45,24 @@
   ],
   "build": {
     "extends": null,
-    "appId": "info.kamranahmed.pennywise",
+    "appId": "be.digitalgod.viewer",
     "asar": true,
-    "copyright": "Copyright © 2018 Kamran Ahmed",
+    "copyright": "Copyright © 2019 Dmitry Rodin",
     "files": [
       "public/**/*",
       "build/**/*",
-      "!public/pennywise.png",
+      "!public/DGViewer.png",
       "package.json"
     ],
     "mac": {
       "category": "public.app-category.navigation",
       "icon": "public/img/icon.icns"
     },
+    "protocols": [{
+        "name": "dgview",
+        "role": "Viewer",
+        "schemes": ["dgview"]
+      }],
     "linux": {
       "category": "Network",
       "target": [
@@ -83,10 +89,14 @@
       ],
       "icon": "public/img/icon.ico"
     },
+    "nsis": {
+        "perMachine": true
+    },
+
     "fileAssociations": [
       {
         "name": "Document",
-        "description": "Pennywise",
+        "description": "DGViewer",
         "role": "Viewer",
         "ext": "html"
       }

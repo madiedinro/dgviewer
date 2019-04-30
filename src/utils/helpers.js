@@ -25,12 +25,13 @@ const prepareYoutubeUrl = (url) => {
 
   // Remove the video hash from query string if available
   // we have the hash already, it will be used in embed code
-  delete queryParams.v;
+  // delete queryParams.v;
   delete queryParams.index;
 
   queryParams.autoplay = 1;
 
-  return `https://www.youtube.com/embed/${videoHash}?${queryString.stringify(queryParams)}`;
+  // return `https://www.youtube.com/embed/${videoHash}?${queryString.stringify(queryParams)}`;
+  return `https://www.youtube.com/tv#/watch/video/control${videoHash}?${queryString.stringify(queryParams)}`;
 };
 
 /**

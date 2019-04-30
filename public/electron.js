@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain } = require('electron');
+const { app, BrowserWindow, ipcMain, protocol } = require('electron');
 const { autoUpdater } = require('electron-updater');
 const pdfWindow = require('electron-pdf-window');
 const path = require('path');
@@ -8,6 +8,7 @@ const http = require('http');
 const url = require('url');
 
 const { setMainMenu } = require('./menu');
+
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -104,6 +105,19 @@ app.on('ready', function () {
   var server = http.createServer((request, response) => {
     var target_url = url.parse(request.url, true).query.url;
 
+    protocol.registerFileProtocol('dgview', (request, callback) => {
+       const url = request.url.substr(9)
+        if (url) {
+          target_url = `https://${url}`
+          mainWindow.webContents.send("url.requested", target_url);
+        };
+
+       callback({ path: path.normalize(`${__dirname}/${url}`) })
+      
+     }, (error) => {
+       if (error) console.error('Failed to register protocol')
+     })
+
     if (target_url) {
       if (Array.isArray(target_url)) {
         target_url = target_url.pop();
@@ -113,7 +127,11 @@ app.on('ready', function () {
 
     response.writeHeader(200);
     response.end();
+    
   })
+  
+
+  
   server.listen(6280, "0.0.0.0")
 });
 
