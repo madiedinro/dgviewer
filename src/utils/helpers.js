@@ -31,7 +31,7 @@ const prepareYoutubeUrl = (url) => {
   queryParams.autoplay = 1;
 
   // return `https://www.youtube.com/embed/${videoHash}?${queryString.stringify(queryParams)}`;
-  return `https://www.youtube.com/tv#/watch/video/control${videoHash}?${queryString.stringify(queryParams)}`;
+  return `https://www.youtube.com/tv#/watch/video/control?v=${videoHash}&resume&${queryString.stringify(queryParams)}`;
 };
 
 /**
