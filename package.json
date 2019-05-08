@@ -6,7 +6,7 @@
   "version": "0.10.0",
   "private": true,
   "main": "public/electron.js",
-  "homepage": "https://digitalgod.be",
+  "homepage": ".",
   "license": "MIT",
   "dependencies": {
     "axios": "^0.18.0",
@@ -32,9 +32,10 @@
     "_build": "react-scripts build",
     "start": "concurrently \"yarn _react\" \"wait-on http://localhost:3000 && yarn _electron\" ",
     "build": "yarn _build && build --mac --win --linux --x64 --ia32 -p always",
-    "build-mac": "yarn _build && build --mac --x64 -p always",
+    "build-mac": "yarn _build && build --mac --x64",
     "icons": "electron-icon-maker -i public/img/DGViewer.png -o public",
-    "test": "mocha"
+    "test": "mocha",
+    "clean": "rimraf dist && rimraf build"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -75,14 +76,12 @@
         {
           "target": "deb",
           "arch": [
-            "ia32",
             "x64"
           ]
         },
         {
           "target": "AppImage",
           "arch": [
-            "ia32",
             "x64"
           ]
         }
@@ -118,6 +117,7 @@
     "node-sass": "^4.9.4",
     "nodemon": "^1.18.5",
     "popper.js": "^1.14.4",
+    "rimraf": "^2.6.3",
     "spectron": "^5.0.0",
     "wait-on": "^3.1.0"
   }
