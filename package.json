@@ -3,10 +3,10 @@
   "description": "DGViewer is a modification of Pennywise – Cross-platform application that allows you to open URLs in a floating window that always stays on top.",
   "productName": "DGViewer",
   "author": "Dmitry Rodin <madiedinro@gmail.com>",
-  "version": "0.9.0",
+  "version": "0.10.0",
   "private": true,
   "main": "public/electron.js",
-  "homepage": "./",
+  "homepage": "https://digitalgod.be",
   "license": "MIT",
   "dependencies": {
     "axios": "^0.18.0",
