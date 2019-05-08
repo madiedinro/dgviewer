@@ -1,4 +1,5 @@
-const { app, BrowserWindow, ipcMain, protocol } = require('electron');
+const electron = require('electron');
+const { app, BrowserWindow, ipcMain } = electron;
 const { autoUpdater } = require('electron-updater');
 const pdfWindow = require('electron-pdf-window');
 const path = require('path');
@@ -7,29 +8,77 @@ const argv = require('yargs').parse(process.argv.slice(1));
 const http = require('http');
 const url = require('url');
 
+const axios = require('axios');
+const log = require('electron-log');
+
 const { setMainMenu } = require('./menu');
+const protocolName = 'dgview';
+const protocolPrefix = `${protocolName}://`;
+
+const apiServer = 'https://bolt.rstat.org/id/get_redirect_data?name=%name%'
+
 
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow;
 
+log.info('argv', argv)
+
+function extractDeeplinkId(url) {
+  log.info('extracting from ' + url)
+  if (url && typeof url === 'string') {
+    if (url.startsWith(protocolPrefix)) {
+      return url.slice(protocolPrefix.length)
+    }
+  }
+
+}
+
+function navigateToId(id) {
+  if (id) {
+
+    axios.get(apiServer.replace('%name%', id))
+      .then(res => res.data)
+      .then(data => {
+        log.info('fetched', data)
+        mainWindow.webContents.send("url.requested", data.url);
+      })
+  }
+}
+
+function findDeeplinkId(probes) {
+  for (let a of probes) {
+    id = extractDeeplinkId(a)
+    if (id) {
+      return id
+    }
+  }
+}
+
+const initialUrlId = findDeeplinkId(argv._)
+
+
 function createWindow() {
+  const dimensions = electron.screen.getPrimaryDisplay().workArea;
+  const w = Math.round(dimensions.width * 0.8)
+  const h = Math.round(dimensions.height * 0.8)
   mainWindow = new BrowserWindow({
-    title: 'Pennywise',
-    width: 700,
-    height: 600,
+    title: 'DGViewer',
+    width: w,
+    height: h,
+    x: dimensions.width - w,
+    y: 0,
     autoHideMenuBar: true,
     backgroundColor: '#16171a',
     show: false,
-    frame: argv.frameless ? false: true,
+    frame: argv.frameless ? false : true,
     webPreferences: {
       plugins: true
     },
   });
 
   pdfWindow.addSupport(mainWindow);
-
   const isDev = !!process.env.APP_URL;
   if (process.env.APP_URL) {
     mainWindow.loadURL(process.env.APP_URL);
@@ -53,6 +102,10 @@ function createWindow() {
     mainWindow.setFullScreenable(false);
 
     bindIpc();
+
+    if (initialUrlId) {
+      navigateToId(initialUrlId)
+    }
   });
 
   mainWindow.on('closed', function () {
@@ -92,46 +145,45 @@ function checkAndDownloadUpdate() {
   try {
     autoUpdater.checkForUpdatesAndNotify();
   } catch (e) {
-    console.log(e.message);
+    log.info(e.message);
   }
 }
+
+
+
+app.on('open-url', function (event, url) {
+  event.preventDefault();
+  id = extractDeeplinkId(url)
+  if (id) {
+    navigateToId(id)
+  }
+});
+
+
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on('ready', function () {
+
+  app.setAsDefaultProtocolClient(protocolName)
+
   createWindow();
   checkAndDownloadUpdate();
+
   var server = http.createServer((request, response) => {
-    var target_url = url.parse(request.url, true).query.url;
-
-    protocol.registerFileProtocol('dgview', (request, callback) => {
-       const url = request.url.substr(9)
-        if (url) {
-          target_url = `https://${url}`
-          mainWindow.webContents.send("url.requested", target_url);
-        };
-
-       callback({ path: path.normalize(`${__dirname}/${url}`) })
-      
-     }, (error) => {
-       if (error) console.error('Failed to register protocol')
-     })
-
-    if (target_url) {
-      if (Array.isArray(target_url)) {
-        target_url = target_url.pop();
+    var targetUrl = url.parse(request.url, true).query.url;
+    if (targetUrl) {
+      if (Array.isArray(targetUrl)) {
+        targetUrl = target_url.pop();
       };
-      mainWindow.webContents.send("url.requested", target_url);
+      mainWindow.webContents.send("url.requested", targetUrl);
     };
 
     response.writeHeader(200);
     response.end();
-    
-  })
-  
 
-  
+  })
   server.listen(6280, "0.0.0.0")
 });
 

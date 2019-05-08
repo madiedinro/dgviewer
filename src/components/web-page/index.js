@@ -125,6 +125,7 @@ class WebPage extends React.Component {
             onReload={ this.onReload }
             onBack={ this.onBack }
             onForward={ this.onForward }
+            toggleNavBar={ this.toggleNavBar }
           />
         }
         <webview

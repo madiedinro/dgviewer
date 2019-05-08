@@ -102,6 +102,7 @@ class NavBar extends Component {
             onFocus={ this.onFocus }
           />
           <button className="btn-action btn btn-danger btn-go" onClick={ () => this.props.onUrl('') }><i className='fa fa-times'/></button>
+          <button className="btn-action btn btn-dark" onClick={ () => this.props.toggleNavBar() }><i className='fa fa-window-maximize'/></button>
           { this.renderSettings() }
         </div>
       </>

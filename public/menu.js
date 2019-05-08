@@ -198,25 +198,25 @@ function setMainMenu(mainWindow) {
         {
           label: 'Found a Bug',
           click() {
-            shell.openExternal('https://github.com/kamranahmedse/pennywise/issues/new');
+            shell.openExternal('https://github.com/madiedinro/dgviewer/issues/new');
           }
         },
         {
           label: 'Suggestions',
           click() {
-            shell.openExternal('https://github.com/kamranahmedse/pennywise/issues/new');
+            shell.openExternal('https://github.com/madiedinro/dgviewer/issues/new');
           }
         },
         {
           label: 'Learn More',
           click() {
-            shell.openExternal('https://github.com/kamranahmedse');
+            shell.openExternal('https://github.com/madiedinro/dgviewer');
           }
         },
         {
           label: `About Version`,
           click() {
-            shell.openExternal(`https://github.com/kamranahmedse/pennywise/releases/tag/v${appVersion}`);
+            shell.openExternal(`https://github.com/madiedinro/dgviewer/releases/tag/v${appVersion}`);
           }
         },
       ]
