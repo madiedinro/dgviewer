@@ -12,6 +12,9 @@ const prepareYoutubeUrl = (url) => {
   if (!parsedUrl.host.includes('youtube.com') && !parsedUrl.host.includes('youtu.be')) {
     return url;
   }
+  if (url.includes('youtube.com/tv')) {
+    return url;
+  }
 
   const queryParams = parsedUrl.query || {};
   let videoHash = queryParams.v || parsedUrl.pathname;
@@ -22,14 +25,13 @@ const prepareYoutubeUrl = (url) => {
   if (!videoHash || videoHash.includes('embed')) {
     return url;
   }
-
+  // https://www.youtube.com/tv#/watch/video/control?v=2oL7M54Dsfo&resume
   // Remove the video hash from query string if available
   // we have the hash already, it will be used in embed code
-  // delete queryParams.v;
+  delete queryParams.v;
   delete queryParams.index;
 
-  queryParams.autoplay = 1;
-
+  // queryParams.autoplay = 1;
   // return `https://www.youtube.com/embed/${videoHash}?${queryString.stringify(queryParams)}`;
   return `https://www.youtube.com/tv#/watch/video/control?v=${videoHash}&resume&${queryString.stringify(queryParams)}`;
 };

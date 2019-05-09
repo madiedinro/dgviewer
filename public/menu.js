@@ -185,6 +185,13 @@ function setMainMenu(mainWindow) {
             mainWindow.webContents.openDevTools();
           }
         },
+        {
+          label: 'WebView Developer Tools',
+          accelerator: 'CmdOrCtrl+Alt+I',
+          click() {
+            mainWindow.webContents.send('wv.dev');
+          }
+        },
         { type: 'separator' },
         { role: 'resetzoom' },
         { role: 'zoomin', accelerator: 'CmdOrCtrl+=' },

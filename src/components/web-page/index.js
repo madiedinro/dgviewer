@@ -2,11 +2,13 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import * as NProgress from 'nprogress';
 import parseUrl from 'url-parse';
+import cls from 'classnames';
 
 import './style.scss';
 import NavBar from '../nav-bar';
 
 const { ipcRenderer } = window.require('electron');
+// const log = require('electron-log');
 
 // Used by WebView while loading any pages
 const USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.77 Safari/537.36';
@@ -15,7 +17,8 @@ class WebPage extends React.Component {
   webView = React.createRef();
   state = {
     url: this.props.url,
-    showNav: true
+    showNav: true,
+    active: true
   };
 
   /**
@@ -38,7 +41,11 @@ class WebPage extends React.Component {
     currentWebView.addEventListener('did-stop-loading', () => {
       NProgress.done();
     });
-
+    
+    currentWebView.addEventListener('media-started-playing', () => {
+      console.log('media-started')
+    });
+    
     currentWebView.addEventListener('new-window', (event) => {
       const currentUrl = this.webView.current.getURL();
       const newUrl = event.url;
@@ -50,6 +57,10 @@ class WebPage extends React.Component {
       if (parsedNewUrl.host === parsedCurrentUrl.host) {
         this.props.onUrl(newUrl);
       }
+    });
+
+    currentWebView.addEventListener('did-finish-load', () => {
+      currentWebView.contentWindow.focus();
     });
 
     // Capture link clicks on page and update state with new url
@@ -99,6 +110,10 @@ class WebPage extends React.Component {
     });
   };
 
+  showDevTools = () => {
+    this.webView.current.openDevTools();
+  };
+
   bindNavBar() {
     ipcRenderer.on('nav.toggle', this.toggleNavBar);
     ipcRenderer.on('nav.show', this.showNavBar);
@@ -109,10 +124,24 @@ class WebPage extends React.Component {
     ipcRenderer.removeListener('nav.show', this.showNavBar);
   }
 
+  activate = () => {
+    console.log('activating')
+    this.setState({active: true})
+  }
+
+  deactivate = () => {
+    console.log('deactivating')
+    this.setState({active: false})
+  }
+
   componentDidMount() {
     this.configureLoader();
     this.bindNavBar();
     this.unbindNavBar();
+
+    ipcRenderer.on('wv.dev', this.showDevTools);
+    ipcRenderer.on('activate', this.activate);
+    ipcRenderer.on('deactivate', this.deactivate);
   }
 
   render() {
@@ -133,7 +162,7 @@ class WebPage extends React.Component {
           useragent={ USER_AGENT }
           ref={ this.webView }
           id="view"
-          className="page"
+          className={cls({"page": true, "noevent": !this.state.active})}
           src={ this.props.url }
           autosize="on"
         />

@@ -58,11 +58,11 @@ function findDeeplinkId(probes) {
 
 const initialUrlId = findDeeplinkId(argv._)
 
-
 function createWindow() {
   const dimensions = electron.screen.getPrimaryDisplay().workArea;
   const w = Math.round(dimensions.width * 0.8)
   const h = Math.round(dimensions.height * 0.8)
+  // BrowserWi ndow.addExtension('uBlock0.chromium')
   mainWindow = new BrowserWindow({
     title: 'DGViewer',
     width: w,
@@ -77,6 +77,7 @@ function createWindow() {
       plugins: true
     },
   });
+  
 
   pdfWindow.addSupport(mainWindow);
   const isDev = !!process.env.APP_URL;
@@ -110,6 +111,16 @@ function createWindow() {
 
   mainWindow.on('closed', function () {
     mainWindow = null;
+  });
+
+  mainWindow.on('focus', function () {
+    log.debug('main win focus')
+    mainWindow.webContents.send('activate')
+  });
+
+  mainWindow.on('blur', function () {
+    log.debug('main win blur')
+    mainWindow.webContents.send('deactivate')
   });
 
   // Open the dev tools only for dev
@@ -149,8 +160,6 @@ function checkAndDownloadUpdate() {
   }
 }
 
-
-
 app.on('open-url', function (event, url) {
   event.preventDefault();
   id = extractDeeplinkId(url)
@@ -160,13 +169,14 @@ app.on('open-url', function (event, url) {
 });
 
 
-
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on('ready', function () {
 
+
   app.setAsDefaultProtocolClient(protocolName)
+
 
   createWindow();
   checkAndDownloadUpdate();
@@ -194,7 +204,9 @@ app.on('activate', disableDetachedMode);
 // Quit when all windows are closed.
 app.on('window-all-closed', function () {
   app.quit();
+  
 });
+
 
 app.on('activate', function () {
   // On OS X it's common to re-create a window in the app when the

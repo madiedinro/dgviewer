@@ -11,6 +11,11 @@
     height: 100vh;
     overflow: hidden;
     border: none;
+    
+  }
+
+  webview.noevent {
+    pointer-events: none;
   }
 
   &.with-nav webview {
